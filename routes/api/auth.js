@@ -28,14 +28,6 @@ router.post(
 // logout
 router.post("/logout", authorize, ctrlWrapper(ctrl.logout));
 
-// delete user
-router.delete(
-  "/:userId",
-  authorize,
-  isValidId,
-  ctrlWrapper(ctrl.deleteUserController)
-);
-
 // refresh user
 router.post(
   "/refresh",

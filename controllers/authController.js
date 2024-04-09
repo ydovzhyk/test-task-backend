@@ -23,10 +23,23 @@ const register = async (req, res, next) => {
       passwordHash,
     });
 
+    const paylaod = { id: newUser._id };
+    const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "12h" });
+    const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
+      expiresIn: "24h",
+    });
+
+    const newSession = await Session.create({
+      uid: newUser._id,
+    });
+
     res.status(201).send({
       username: newUser.username,
       email: newUser.email,
       id: newUser._id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      sid: newSession._id,
     });
   } catch (error) {
     next(error);
