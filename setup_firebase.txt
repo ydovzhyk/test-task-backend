@@ -1,0 +1,84 @@
+Інструкція по завантаженю фотографій на Firebase проект
+-------------------------------------------------------
+1) Потріьно отримати service account file:
+Як отримати файл служби облікових даних (service account file) для Firebase
+Перейдіть до Firebase Console:
+Відкрийте Firebase Console.
+
+Виберіть ваш проект:
+Виберіть проект, для якого ви хочете отримати облікові дані.
+
+Перейдіть до налаштувань проекту:
+Натисніть на "шестерню" (⚙️) біля назви вашого проекту в лівому верхньому куті, потім виберіть "Project settings" (Налаштування проекту).
+
+Перейдіть до вкладки "Service accounts" (Службові облікові записи):
+В меню виберіть "Service accounts".
+
+Створіть новий ключ:
+Натисніть на кнопку "Generate new private key" (Створити новий приватний ключ). Після цього, файл .json буде завантажено на ваш комп'ютер.
+
+Збережіть файл безпеки:
+Зберігайте цей файл у безпечному місці, так як він містить секретну інформацію, яка дозволяє доступ до вашого проекту Firebase.
+Поки поклав файл "apartment-rent-yd-firebase-adminsdk-y9fjl-b85fd05347.json" у корінь проекту сервера!!!
+
+2) Створюємо Storage для зберігання файлів
+На Firebase у проекті переходимо в Storage і обираємо Start in production mode, далі. 
+Коли Storage створено шукаємо розділ Rules та міняємо їх на наступне та зберігаємо:
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+    }
+  }
+}
+Далі переходимо у Files створюємо папку, як приклад apartment і в ній папку images, отримуємо посилання:
+gs://apartment-rent-yd.appspot.com/apartment/images
+
+Далі нам потрібна буде частина цього посилання, а саме "apartment-rent-yd.appspot.com"
+
+3) Підключаємо все у проект сервера:
+Встановлюємо firebase-admin
+npm install firebase-admin
+________________________________
+
+Імпортуйте та ініціалізуємо Firebase Admin SDK з використанням файлу apartment-rent-yd-firebase-adminsdk-y9fjl-b85fd05347.json:
+Створюємо файл firebaseConfig.js та прописуємо:
+
+const admin = require('firebase-admin');
+const serviceAccount = require('./path/to/your-service-account-file.json'); //шлях до файлу apartment-rent-yd-firebase-adminsdk-y9fjl-b85fd05347.json
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount), //використовуємо ту частину з посилання на папки в Firebase Storage
+  storageBucket: 'your-bucket-name.appspot.com' 
+});
+const bucket = admin.storage().bucket();
+
+Далі в контролері:
+const fs = require("fs");
+const { bucket } = require("../firebaseConfig");
+
+const createApartment = async (req, res, next) => {
+  const { mainImage } = req.body;
+
+  const files = req.files || [];
+  const mainImageFile = files.find((file) => file.originalname === mainImage);
+
+  try {
+    let mainImageUrl = "";
+    if (mainImageFile) {
+      const mainImageStorageFile = bucket.file(
+        `apartment/images/${Date.now()}_${mainImageFile.originalname}`
+      );
+      await mainImageStorageFile.save(fs.readFileSync(mainImageFile.path));
+      mainImageUrl = await mainImageStorageFile.getSignedUrl({
+        action: "read",
+        expires: "03-01-2500",
+      });
+      mainImageUrl = mainImageUrl[0];
+      console.log(mainImageUrl); //Тут наше посилання на файл!!!
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+

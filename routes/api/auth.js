@@ -36,4 +36,15 @@ router.post(
   ctrlWrapper(ctrl.refresh)
 );
 
+// get current user
+router.post("/current", authorize, ctrlWrapper(ctrl.getUserController));
+
+// edit user
+router.post(
+  "/edit",
+  authorize,
+  validateBody(schemas.editUserSchema),
+  ctrlWrapper(ctrl.editUserController)
+);
+
 module.exports = router;

@@ -9,8 +9,7 @@ const { RequestError } = require("../helpers");
 
 const register = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
-
+    const { username, email, password, userAvatar } = req.body;
     const user = await User.findOne({ email });
     if (user) {
       throw RequestError(409, "Email in use");
@@ -21,6 +20,7 @@ const register = async (req, res, next) => {
       username,
       email,
       passwordHash,
+      userAvatar,
     });
 
     const paylaod = { id: newUser._id };
@@ -36,6 +36,7 @@ const register = async (req, res, next) => {
     res.status(201).send({
       username: newUser.username,
       email: newUser.email,
+      userAvatar: newUser.userAvatar,
       id: newUser._id,
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -99,6 +100,7 @@ const refresh = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
+  console.log("В контролері");
   try {
     const user = req.user;
     await Session.deleteMany({ uid: user._id });
@@ -121,10 +123,64 @@ const deleteUserController = async (req, res, next) => {
   }
 };
 
+const getUserController = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { accessToken, refreshToken, sid } = req.body;
+    const user = await User.findOneAndUpdate(
+      { _id },
+      { lastVisit: new Date() },
+      { new: true }
+    );
+    return res.status(200).send({
+      accessToken,
+      refreshToken,
+      sid,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const editUserController = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { aboutUser, email, name, phone, userAvatar, username } = req.body;
+    const user = await User.findOneAndUpdate(
+      { _id },
+      {
+        aboutUser: aboutUser
+          ? aboutUser
+          : req.user.aboutUser
+          ? req.user.aboutUser
+          : "",
+        email: email ? email : req.user.email,
+        name: name ? name : req.user.name,
+        phone: phone ? phone : req.user.phone ? req.user.phone : "",
+        userAvatar: userAvatar ? userAvatar : req.user.userAvatar,
+        username: username
+          ? username
+          : req.user.username
+          ? req.user.username
+          : "",
+      },
+      { new: true }
+    );
+    return res.status(201).send({
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   logout,
   deleteUserController,
   refresh,
+  getUserController,
+  editUserController,
 };

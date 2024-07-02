@@ -2,12 +2,11 @@ const { isValidObjectId } = require("mongoose");
 const { RequestError } = require("../helpers");
 
 const isValidId = (req, res, next) => {
-  const productId = req.params.productId || req.body.productId;
-
+  const eventId = req.params.eventId || req.body.eventId;
   const userId = req.params.userId || req.body.userId;
 
   try {
-    const objectId = isValidObjectId(productId) ? productId : userId;
+    const objectId = isValidObjectId(eventId) ? eventId : userId;
     if (!isValidObjectId(objectId)) {
       throw new Error("is not a valid ObjectId");
     }

@@ -14,16 +14,56 @@ const userSchema = new Schema(
       minlength: 2,
       maxLength: 25,
     },
+    name: {
+      type: String,
+      default: "",
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
       unique: true,
       match: emailRegexp,
     },
+    phone: {
+      type: String,
+      default: "",
+    },
+    aboutUser: {
+      type: String,
+      default: "",
+    },
     passwordHash: {
       type: String,
       required: [true, "Set password for user"],
       minlength: 6,
+    },
+    userAvatar: {
+      type: String,
+    },
+    apartmentList: {
+      type: [String],
+      default: [],
+      required: false,
+    },
+    ordersForRent: {
+      type: [String],
+      default: [],
+      required: false,
+    },
+    messages: {
+      type: [
+        {
+          allMessages: {
+            type: [String],
+            default: [],
+          },
+          newMessages: {
+            type: [String],
+            default: [],
+          },
+        },
+      ],
+      default: [],
     },
   },
 
@@ -38,6 +78,7 @@ const registerSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
   username: Joi.string().required(),
+  userAvatar: Joi.string().required(),
 });
 
 const loginSchema = Joi.object({
@@ -49,10 +90,20 @@ const refreshTokenSchema = Joi.object({
   sid: Joi.string().required(),
 });
 
+const editUserSchema = Joi.object({
+  aboutUser: Joi.string().allow(null, ""),
+  email: Joi.string().pattern(emailRegexp).required().allow(null, ""),
+  name: Joi.string().allow(null, ""),
+  phone: Joi.string().allow(null, ""),
+  userAvatar: Joi.string().required().allow(null, ""),
+  username: Joi.string().required().allow(null, ""),
+});
+
 const schemas = {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  editUserSchema,
 };
 
 module.exports = {
