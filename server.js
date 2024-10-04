@@ -19,19 +19,19 @@ mongoose
     const server = http.createServer(app);
 
     // Ініціалізація WebSocket-сервера
-    // const io = new Server(server, {
-    //   cors: {
-    //     origin: "*",
-    //     methods: ["GET", "POST"],
-    //   },
-    // });
-
     const io = new Server(server, {
       cors: {
-        origin: "https://speakflow.netlify.app",
+        origin: "*",
         methods: ["GET", "POST"],
       },
     });
+
+    // const io = new Server(server, {
+    //   cors: {
+    //     origin: "https://speakflow.netlify.app",
+    //     methods: ["GET", "POST"],
+    //   },
+    // });
 
     // Ініціалізація WebSocket функціоналу
     initializeWebSocket(io);
