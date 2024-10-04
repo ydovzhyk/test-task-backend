@@ -37,6 +37,9 @@ jobs:
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "BASE_URL_HEROKU=${{ secrets.BASE_URL_HEROKU }}" >> .env
+          echo "TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}" >> .env
+          echo "TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}" >> .env
+          echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKENU }}" >> .env
         working-directory: .
 
       - name: Build Docker image
