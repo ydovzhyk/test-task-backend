@@ -1,19 +1,3 @@
-// const mongoose = require("mongoose");
-// const app = require("./app");
-
-// mongoose.set('strictQuery', false);
-// const { DB_HOST, PORT = 4000 } = process.env;
-
-// mongoose
-//   .connect(DB_HOST)
-//   .then(() =>
-//     app.listen(PORT, () => console.log("Database connection successful"))
-//   )
-//   .catch((error) => {
-//     console.log(error.message);
-//     process.exit(1);
-//   });
-
 const mongoose = require("mongoose");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -35,9 +19,16 @@ mongoose
     const server = http.createServer(app);
 
     // Ініціалізація WebSocket-сервера
+    // const io = new Server(server, {
+    //   cors: {
+    //     origin: "*",
+    //     methods: ["GET", "POST"],
+    //   },
+    // });
+
     const io = new Server(server, {
       cors: {
-        origin: "*",
+        origin: "https://speakflow.netlify.app",
         methods: ["GET", "POST"],
       },
     });
