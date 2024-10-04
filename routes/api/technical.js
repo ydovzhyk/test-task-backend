@@ -71,4 +71,6 @@ router.post(
   ctrlWrapper(ctrl.editReview)
 );
 
+router.get("/reviews", ctrlWrapper(ctrl.getReviewsList));
+
 module.exports = router;

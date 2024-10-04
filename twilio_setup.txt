@@ -1,0 +1,50 @@
+npm install express twilio
+______________________________________________
+В helpers створюємо twilio.js:
+const twilio = require("twilio");
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
+
+const sendSMS = (to, body) => {
+  return client.messages.create({
+    body: body,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: to,
+  });
+};
+
+module.exports = { sendSMS };
+______________________________________________
+В routes->api створюємо sms.js
+const express = require("express");
+const { sendSMS } = require("../../helpers/twilio");
+
+const router = express.Router();
+
+router.post("/send-sms", async (req, res) => {
+  const { to, body } = req.body;
+
+  try {
+    const message = await sendSMS(to, body);
+    console.log(`SMS sent: ${message.sid}`);
+    res.status(200).send(`SMS sent: ${message.sid}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error sending SMS");
+  }
+});
+
+module.exports = router;
+______________________________________________
+в app.js імпортуємо 
+const smsRouter = require("./routes/api/sms");
+та додаємо роутер
+app.use("/sms", smsRouter);
+______________________________________________
+в env додаємо
+TWILIO_PHONE_NUMBER=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+______________________________________________

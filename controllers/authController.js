@@ -100,7 +100,6 @@ const refresh = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
-  console.log("В контролері");
   try {
     const user = req.user;
     await Session.deleteMany({ uid: user._id });
@@ -175,6 +174,29 @@ const editUserController = async (req, res, next) => {
   }
 };
 
+const googleAuthController = async (req, res, next) => {
+  try {
+    const { _id: id } = req.user;
+    const payload = { id };
+
+    const origin = req.session.origin;
+
+    const accessToken = jwt.sign(payload, SECRET_KEY, { expiresIn: "12h" });
+    const refreshToken = jwt.sign(payload, REFRESH_SECRET_KEY, {
+      expiresIn: "24h",
+    });
+    const newSession = await Session.create({
+      uid: id,
+    });
+
+    res.redirect(
+      `${origin}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -183,4 +205,5 @@ module.exports = {
   refresh,
   getUserController,
   editUserController,
+  googleAuthController,
 };

@@ -6,34 +6,51 @@ const { Review } = require("../models/review");
 const {
   RequestError,
   sendMail,
+  sendSMS,
   updatePhoto,
   deletePhoto,
 } = require("../helpers");
 
 const addAppointment = async (req, res, next) => {
+  const { phone, parentName, childrenName, question, fromPage } = req.body;
   try {
-    const { phone, parentName, childrenName } = req.body;
     const newAppointment = await Appointment.create({
       phone,
       parentName,
       childrenName,
+      question: question ? question : "",
+      fromPage: fromPage ? fromPage : "",
     });
 
-    if (!newAppointment) {
-      throw new Error("Failed to create appointment");
+    let text = `Добрий день,`;
+    text += `<br><br>користувач ${newAppointment.parentName} записався на зустріч з вами на рахунок його дитини ${newAppointment.childrenName}. Телефон для зв'язку: ${newAppointment.phone}.`;
+    if (question) {
+      text += `<br><br>Також, користувач ${newAppointment.parentName} залишив запитання: ${newAppointment.question}.`;
     }
+    text += `<br><br>Переглянути увесь список користувачів записаних на зустріч, ви можете на сторінці "Зустрічі" адміністративного режиму сайту <a href="https://middleway.in.ua/?password=12345">посилання</a>.`;
 
-    const text = `Добрий день, користувач ${newAppointment.parentName} записався на зустріч з вами на рахунок його дитини ${newAppointment.childrenName}. Телефон для зв'язку ${newAppointment.phone}`;
-    const result = await sendMail(text);
+    let textSMS = `Добрий день,`;
+    textSMS += " ";
+    textSMS += `користувач ${newAppointment.parentName} записався на зустріч з вами на рахунок його дитини ${newAppointment.childrenName}. Телефон для зв'язку: ${newAppointment.phone}.`;
+    if (question) {
+      text += `Також, користувач ${newAppointment.parentName} залишив запитання: ${newAppointment.question}.`;
+    }
+    textSMS += " ";
+    textSMS += ` Переглянути увесь список користувачів записаних на зустріч, ви можете на сторінці "Зустрічі" адміністративного режиму сайту https://middleway.in.ua/?password=12345`;
 
-    if (result) {
+    const resultMail = await sendMail(text);
+    const resultSMS = await sendSMS(textSMS);
+
+    if (resultMail && resultSMS && newAppointment) {
       res.status(201).send({
-        message: "Ваша заявка на зустріч успішно відправлена.",
+        message:
+          "ДЯКУЄМО ЗА ЗВЕРНЕННЯ! Ваша заявка відправлена, ми зв’яжемося з вами найближчим часом.",
       });
     } else {
       throw new Error("Failed to send email");
     }
   } catch (error) {
+    console.log(error);
     res.status(400).send({
       message:
         "Виникла помилка відправлення заявки, спробуйте інший спосіб зв'язатися з нами.",
@@ -265,6 +282,30 @@ const addReview = async (req, res, next) => {
   }
 };
 
+const getReviewsList = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const perPage = 5;
+  try {
+    const totalReviews = await Review.countDocuments();
+
+    const reviews = await Review.find()
+      .sort({ dateCreated: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+
+    res.status(200).json({
+      reviews,
+      totalPagesReview: Math.ceil(totalReviews / perPage),
+    });
+  } catch (erroer) {
+    res.status(400).send({
+      message:
+        "Виникла помилка отримання інформації про відгуки, спробуйте пізніше.",
+    });
+    return;
+  }
+};
+
 module.exports = {
   addAppointment,
   addEvent,
@@ -272,4 +313,5 @@ module.exports = {
   deleteEvnet,
   editEvent,
   addReview,
+  getReviewsList,
 };

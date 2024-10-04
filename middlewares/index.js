@@ -5,6 +5,7 @@ const authorize = require("./authorize");
 const authenticateRefresh = require("./authenticateRefresh");
 const upload = require("./upload");
 const uploadFiles = require("./uploadFiles");
+const passport = require("./google-auth");
 
 module.exports = {
   authorize,
@@ -14,4 +15,5 @@ module.exports = {
   authenticateRefresh,
   uploadFiles,
   upload,
+  passport,
 };

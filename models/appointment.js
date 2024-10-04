@@ -20,6 +20,22 @@ const appointmentSchema = new Schema(
       type: String,
       required: [true, "Children Name is required"],
     },
+    question: {
+      type: String,
+      required: false,
+    },
+    fromPage: {
+      type: String,
+      required: false,
+    },
+    addComment: {
+      type: String,
+      required: false,
+    },
+    addCommentAuthor: {
+      type: String,
+      required: false,
+    },
     dateCreated: {
       type: Date,
       default: Date.now,
@@ -37,10 +53,19 @@ const addAppointmentSchema = Joi.object({
   phone: Joi.string().pattern(telRegexp).required(),
   parentName: Joi.string().required(),
   childrenName: Joi.string().required(),
+  question: Joi.string().allow(""),
+  fromPage: Joi.string().allow(""),
+});
+
+const editAppointmentSchema = Joi.object({
+  id: Joi.string().required(),
+  comment: Joi.string().required(),
+  commentAuthor: Joi.string().required(),
 });
 
 const schemas = {
   addAppointmentSchema,
+  editAppointmentSchema,
 };
 
 module.exports = {

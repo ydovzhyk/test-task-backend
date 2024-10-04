@@ -7,7 +7,7 @@ const sendMail = async (text) => {
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {
-    to: USER_EMAIL,
+    to: USER_EMAIL ? USER_EMAIL : "ydovzhyk@gmail.com",
     from: SENDGRID_SENDER,
     subject: "Новий користувач записався на зустріч",
     text: text,

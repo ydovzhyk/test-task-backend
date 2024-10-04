@@ -159,8 +159,6 @@ const checkApartmentAvaibility = async (req, res, next) => {
       apartmentId,
     } = req.body;
 
-    console.log(apartmentId);
-
     let apartment = null;
 
     apartment = await Apartment.findById(apartmentId);
