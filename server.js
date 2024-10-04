@@ -26,13 +26,6 @@ mongoose
       },
     });
 
-    // const io = new Server(server, {
-    //   cors: {
-    //     origin: "https://speakflow.netlify.app",
-    //     methods: ["GET", "POST"],
-    //   },
-    // });
-
     // Ініціалізація WebSocket функціоналу
     initializeWebSocket(io);
 
