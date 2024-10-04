@@ -19,7 +19,22 @@ const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
-app.use(cors({ credentials: false, origin: "*" }));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://ydovzhyk.github.io",
+  "https://speakflow.netlify.app",
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+app.use(cors(corsOptions));
+// app.use(cors({ credentials: false, origin: "*" }));
 app.use(express.json());
 
 const staticPath = path.resolve("public/");
