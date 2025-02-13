@@ -39,7 +39,7 @@ jobs:
           echo "BASE_URL_HEROKU=${{ secrets.BASE_URL_HEROKU }}" >> .env
           echo "TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}" >> .env
           echo "TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}" >> .env
-          echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKENU }}" >> .env
+          echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> .env
           echo "GPT_API_KEY=${{ secrets.GPT_API_KEY }}" >> .env
           echo "DEEPGRAM_API_KEY=${{ secrets.DEEPGRAM_API_KEY }}" >> .env
         working-directory: .

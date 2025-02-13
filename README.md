@@ -1,2 +1,5 @@
 # test-task-backend
- Test task
+
+Test task
+
+npm run start:dev

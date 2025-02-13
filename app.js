@@ -11,6 +11,7 @@ const apartmentsRouter = require("./routes/api/apartment");
 const ordersRouter = require("./routes/api/orders");
 const smsRouter = require("./routes/api/sms");
 const googleRouter = require("./routes/api/google");
+const textDataRouter = require("./routes/api/textData");
 
 const { GOOGLE_CLIENT_SECRET } = process.env;
 
@@ -43,6 +44,7 @@ app.use("/technical", technicalRouter);
 app.use("/apartments", apartmentsRouter);
 app.use("/orders", ordersRouter);
 app.use("/sms", smsRouter);
+app.use("/textData", textDataRouter);
 
 app.use(
   "/google",
@@ -69,7 +71,7 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
+  console.log(err); // eslint-disable-line
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({
     message,

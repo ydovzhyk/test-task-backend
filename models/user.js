@@ -1,10 +1,8 @@
 const Joi = require("joi");
 const { Schema, model } = require("mongoose");
-
 const { handleSaveErrors } = require("../helpers");
 
-const emailRegexp =
-  /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+const emailRegexp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const userSchema = new Schema(
   {
@@ -12,11 +10,13 @@ const userSchema = new Schema(
       type: String,
       required: [true, "User Name is required"],
       minlength: 2,
-      maxLength: 25,
+      maxlength: 25,
     },
-    name: {
+    surname: {
       type: String,
       default: "",
+      minlength: 2,
+      maxlength: 50,
     },
     email: {
       type: String,
@@ -27,10 +27,7 @@ const userSchema = new Schema(
     phone: {
       type: String,
       default: "",
-    },
-    aboutUser: {
-      type: String,
-      default: "",
+      match: /^\+?[1-9]\d{1,14}$/,
     },
     passwordHash: {
       type: String,
@@ -39,35 +36,71 @@ const userSchema = new Schema(
     },
     userAvatar: {
       type: String,
+      default: "",
+    },
+    country: {
+      type: String,
+      default: "",
+    },
+    city: {
+      type: String,
+      default: "",
+    },
+    address: {
+      type: String,
+      default: "",
+    },
+    sex: {
+      type: String,
+      enum: ["male", "female", ""],
+      default: "",
+    },
+    aboutUser: {
+      type: String,
+      default: "",
+      maxlength: 500,
+    },
+    verified: {
+      type: Boolean,
+      default: false,
     },
     apartmentList: {
-      type: [String],
+      type: [Schema.Types.ObjectId],
+      ref: "Apartment",
       default: [],
-      required: false,
     },
     ordersForRent: {
-      type: [String],
+      type: [Schema.Types.ObjectId],
+      ref: "Order",
       default: [],
-      required: false,
+    },
+    verificationToken: {
+      type: String,
+      default: "",
     },
     messages: {
       type: [
         {
           allMessages: {
-            type: [String],
+            type: [Schema.Types.ObjectId],
+            ref: "Message",
             default: [],
           },
           newMessages: {
-            type: [String],
+            type: [Schema.Types.ObjectId],
+            ref: "Message",
             default: [],
           },
         },
       ],
       default: [],
     },
+    textDataList: {
+      type: [String],
+      default: [],
+    },
   },
-
-  { minimize: false }
+  { minimize: false, timestamps: true }
 );
 
 userSchema.post("save", handleSaveErrors);
@@ -91,19 +124,35 @@ const refreshTokenSchema = Joi.object({
 });
 
 const editUserSchema = Joi.object({
-  aboutUser: Joi.string().allow(null, ""),
-  email: Joi.string().pattern(emailRegexp).required().allow(null, ""),
-  name: Joi.string().allow(null, ""),
-  phone: Joi.string().allow(null, ""),
-  userAvatar: Joi.string().required().allow(null, ""),
-  username: Joi.string().required().allow(null, ""),
+  username: Joi.string().min(2).max(25).optional().allow(""),
+  surname: Joi.string().min(2).max(50).optional().allow(""),
+  email: Joi.string().optional().allow(""),
+  phone: Joi.string().optional().allow(""),
+  userAvatar: Joi.string().optional().allow(""),
+  country: Joi.string().optional().allow(""),
+  city: Joi.string().optional().allow(""),
+  address: Joi.string().optional().allow(""),
+  sex: Joi.string().valid("male", "female", "").optional().allow(""),
+  aboutUser: Joi.string().max(500).optional().allow(""),
+  password: Joi.string().optional().allow(""),
 });
+
+const verifyEmailSchema = Joi.object({
+  email: Joi.string().email().required(),
+  location: Joi.string().optional(),
+  message: Joi.object({
+    text: Joi.string().required(),
+    title: Joi.string().required(),
+  }).required(),
+});
+
 
 const schemas = {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
   editUserSchema,
+  verifyEmailSchema,
 };
 
 module.exports = {

@@ -1,11 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const { bucket } = require("../firebaseConfig");
 
 const { User } = require("../models/user");
 const { Session } = require("../models/session");
 const { SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
+const { v4: uuidv4 } = require("uuid");
 
-const { RequestError } = require("../helpers");
+const { RequestError, sendMail } = require("../helpers");
 
 const register = async (req, res, next) => {
   try {
@@ -145,30 +148,38 @@ const getUserController = async (req, res, next) => {
 const editUserController = async (req, res, next) => {
   try {
     const { _id } = req.user;
-    const { aboutUser, email, name, phone, userAvatar, username } = req.body;
-    const user = await User.findOneAndUpdate(
-      { _id },
-      {
-        aboutUser: aboutUser
-          ? aboutUser
-          : req.user.aboutUser
-          ? req.user.aboutUser
-          : "",
-        email: email ? email : req.user.email,
-        name: name ? name : req.user.name,
-        phone: phone ? phone : req.user.phone ? req.user.phone : "",
-        userAvatar: userAvatar ? userAvatar : req.user.userAvatar,
-        username: username
-          ? username
-          : req.user.username
-          ? req.user.username
-          : "",
-      },
-      { new: true }
-    );
-    return res.status(201).send({
-      user,
+    const {
+      username,
+      surname,
+      aboutUser,
+      country,
+      city,
+      address,
+      sex,
+      phone,
+      userAvatar,
+      email,
+    } = req.body;
+
+    const updatedUserData = {
+      aboutUser: aboutUser || req.user.aboutUser || "",
+      username: username || req.user.username || "",
+      surname: surname || req.user.surname || "",
+      country: country || req.user.country || "",
+      city: city || req.user.city || "",
+      address: address || req.user.address || "",
+      sex: sex || req.user.sex || "",
+      phone: phone || req.user.phone || "",
+      userAvatar: userAvatar || req.user.userAvatar || "",
+      email: email || req.user.email || "",
+    };
+
+    const user = await User.findOneAndUpdate({ _id }, updatedUserData, {
+      new: true,
+      runValidators: true,
     });
+
+    return res.status(201).send({ user });
   } catch (error) {
     next(error);
   }
@@ -197,6 +208,105 @@ const googleAuthController = async (req, res, next) => {
   }
 };
 
+const verificationController = async (req, res, next) => {
+  try {
+    const { _id: userId } = req.user;
+    const { email, location } = req.body;
+    const file = req.file;
+    const referer = req.headers.referer || req.headers.origin || location;
+    const serverUrl = `${req.protocol}://${req.get("host")}`;
+    const verificationToken = uuidv4();
+
+    let message;
+    try {
+      message = JSON.parse(req.body.message);
+    } catch (error) {
+      console.error("Error parsing message:", error); // eslint-disable-line
+      return res.status(400).json({ error: "Invalid message format" });
+    }
+
+    const saveLogoToFirebase = async (logoFile) => {
+      try {
+        if (!logoFile) {
+          throw new Error("No file provided");
+        }
+        const logoStorageFile = bucket.file(
+          `logo/images/${Date.now()}_${logoFile.originalname}`
+        );
+        await logoStorageFile.save(fs.readFileSync(logoFile.path));
+
+        const [logoUrl] = await logoStorageFile.getSignedUrl({
+          action: "read",
+          expires: "03-01-2500",
+        });
+
+        return logoUrl;
+      } catch (error) {
+        console.error("Error saving logo to Firebase:", error); // eslint-disable-line
+        throw new Error("Failed to save logo");
+      }
+    };
+
+    const logo = await saveLogoToFirebase(file);
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { verificationToken, email },
+      { new: true, runValidators: true }
+    );
+
+    const result = await sendMail(
+      email,
+      serverUrl,
+      verificationToken,
+      referer,
+      message,
+      logo,
+    );
+
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.error(`Error deleting file ${file.path}:`, err); // eslint-disable-line
+      }
+    });
+
+    if (result) {
+      req.session = null;
+      res.status(201).send({
+        user: updatedUser,
+        message: "Go to your inbox to confirm your email",
+      });
+    } else {
+      res.status(400).send({
+        message: "The email could not be sent, please try again later",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const verifyController = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+    const { url } = req.query;
+    const user = await User.findOne({ verificationToken });
+
+    if (!user) {
+      throw RequestError(404, "User not found");
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      verified: true,
+      verificationToken: "",
+    });
+
+    res.redirect(`${url}?message=Verification successful`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -206,4 +316,6 @@ module.exports = {
   getUserController,
   editUserController,
   googleAuthController,
+  verificationController,
+  verifyController,
 };

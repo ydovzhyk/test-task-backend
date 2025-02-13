@@ -4,9 +4,9 @@ const ctrl = require("../../controllers/authController");
 
 const {
   validateBody,
-  isValidId,
   authorize,
   authenticateRefresh,
+  upload,
 } = require("../../middlewares");
 const { schemas } = require("../../models/user");
 const router = express.Router();
@@ -46,5 +46,16 @@ router.post(
   validateBody(schemas.editUserSchema),
   ctrlWrapper(ctrl.editUserController)
 );
+
+// verify email
+router.post(
+  "/verify",
+  upload.single("file"),
+  authorize,
+  // validateBody(schemas.verifyEmailSchema),
+  ctrlWrapper(ctrl.verificationController)
+);
+
+router.get("/:verificationToken", ctrlWrapper(ctrl.verifyController));
 
 module.exports = router;
