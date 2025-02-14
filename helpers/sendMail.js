@@ -27,7 +27,7 @@ const sendMail = async (
         <h2 style="color: #ffffff; font-size: 24px;">${message.title}</h2>
         <p style="color: #d1d1d1; font-size: 16px;">${message.text}</p>
         <a href="${serverUrl}/auth/${verificationToken}?url=${referer}" target="_blank" 
-          style="display: inline-block; padding: 12px 25px; background-color: #ff662d; color: #ffffff; font-size: 16px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+          style="display: inline-block; padding: 12px 12px; background-color: #ff662d; color: #ffffff; font-size: 16px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
           Confirm Email
         </a>
         <p style="margin-top: 20px; font-size: 14px; color: #bbbbbb;">
