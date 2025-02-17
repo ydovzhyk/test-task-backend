@@ -293,12 +293,12 @@ const verifyController = async (req, res, next) => {
     const user = await User.findOne({ verificationToken });
 
     if (!user) {
-      throw RequestError(404, "User not found");
+      res.redirect(`${url}?message=The user is already verified.`);
     }
 
     await User.findByIdAndUpdate(user._id, {
       verified: true,
-      verificationToken: "",
+      verificationToken: '',
     });
 
     res.redirect(`${url}?message=Verification successful`);
