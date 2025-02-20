@@ -19,6 +19,7 @@ const createApartment = async (req, res, next) => {
     owner,
     accommodation,
     price,
+    category,
     servicesList,
     mainImage,
   } = req.body;
@@ -80,6 +81,7 @@ const createApartment = async (req, res, next) => {
       owner: finalOwner,
       accommodation: finalAccommodation,
       price: finalPrice,
+      category: category,
       servicesList: finalServicesList,
       mainImage: mainImageUrl,
       imagesLink,
@@ -93,10 +95,13 @@ const createApartment = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(201).json({ message: "Ваші апартаменти додано у базу" });
+    res
+      .status(201)
+      .json({ message: "Your apartments have been added to the database." });
   } catch (error) {
     res.status(400).send({
-      message: "Виникла помилка збереження апартаментів, спробуйте пізніше",
+      message:
+        "There was an error saving the apartments, please try again later.",
     });
   }
 };

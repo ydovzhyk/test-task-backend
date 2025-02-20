@@ -82,6 +82,10 @@ const apartmentSchema = new Schema(
         required: [true, "Currency is required"],
       },
     },
+    category: {
+      type: String,
+      required: false,
+    },
     servicesList: {
       type: [String],
       default: [],
@@ -137,6 +141,7 @@ const addApartmentSchema = Joi.object({
     value: Joi.string().required(),
     currency: Joi.string().required(),
   }),
+  category: Joi.string().allow(""),
   servicesList: Joi.string().allow(""),
   mainImage: Joi.string().allow(""),
 });

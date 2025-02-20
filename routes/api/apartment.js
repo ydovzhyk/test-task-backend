@@ -22,13 +22,13 @@ router.post(
   ctrlWrapper(ctrl.createApartment)
 );
 
-//*Get filtred apartment
+// *Get filtred apartment
 router.get("/filter", ctrlWrapper(ctrl.getFiltredApartmentsList));
 
-//*Get apartment by Id
+// *Get apartment by Id
 router.get("/:id", ctrlWrapper(ctrl.getApartmentById));
 
-//*check avaibility apartment
+// *check avaibility apartment
 router.post(
   "/check",
   validateBody(schemas.checkApartmentSchema),
