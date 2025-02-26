@@ -25,14 +25,25 @@ router.post(
 // *Get filtred apartment
 router.get("/filter", ctrlWrapper(ctrl.getFiltredApartmentsList));
 
-// *Get apartment by Id
-router.get("/:id", ctrlWrapper(ctrl.getApartmentById));
-
 // *check avaibility apartment
 router.post(
   "/check",
   validateBody(schemas.checkApartmentSchema),
   ctrlWrapper(ctrl.checkApartmentAvaibility)
 );
+
+// *Like apartment
+router.post(
+  "/like",
+  authorize,
+  validateBody(schemas.likeApartmentSchema),
+  ctrlWrapper(ctrl.likeApartment)
+);
+
+// *Get types apartment array
+router.get("/type", ctrlWrapper(ctrl.getTypesApartmentArray));
+
+// *Get apartment by Id
+router.get("/:id", ctrlWrapper(ctrl.getApartmentById));
 
 module.exports = router;

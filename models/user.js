@@ -69,6 +69,11 @@ const userSchema = new Schema(
       ref: "Apartment",
       default: [],
     },
+    likedApartments: {
+      type: [Schema.Types.ObjectId],
+      ref: "Apartment",
+      default: [],
+    },
     ordersForRent: {
       type: [Schema.Types.ObjectId],
       ref: "Order",

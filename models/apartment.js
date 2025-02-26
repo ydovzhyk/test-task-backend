@@ -155,9 +155,14 @@ const checkApartmentSchema = Joi.object({
   apartmentId: Joi.string().required(),
 });
 
+const likeApartmentSchema = Joi.object({
+  propertyId: Joi.string().required(),
+});
+
 const schemas = {
   addApartmentSchema,
   checkApartmentSchema,
+  likeApartmentSchema,
 };
 
 module.exports = {

@@ -169,7 +169,6 @@ const checkApartmentAvaibility = async (req, res, next) => {
     apartment = await Apartment.findById(apartmentId);
 
     if (!apartment.accommodation || !apartment.accommodation.livingRooms) {
-      console.log("Чомусь заходимо створити данні для акомодешіон");
       apartment.accommodation = {
         livingRooms: "1",
         qtyAdults: "2",
@@ -242,9 +241,81 @@ const checkApartmentAvaibility = async (req, res, next) => {
   }
 };
 
+const mongoose = require("mongoose");
+
+const likeApartment = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    let { propertyId: id } = req.body;
+
+    // Конвертуємо id у ObjectId, якщо він ще не у цьому форматі
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid property ID format." });
+    }
+    id = new mongoose.Types.ObjectId(id);
+
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const isLiked = user.likedApartments.some((aptId) => aptId.equals(id));
+
+    await User.findByIdAndUpdate(
+      _id,
+      isLiked
+        ? { $pull: { likedApartments: id } } // Видаляємо, якщо є
+        : { $addToSet: { likedApartments: id } }, // Додаємо, якщо ще немає
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: isLiked
+        ? "This property has been removed from your upcoming trips."
+        : "This property has been saved to your upcoming trips.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTypesApartmentArray = async (req, res, next) => {
+  try {
+    const categories = [
+      "hotel",
+      "apartment",
+      "resort",
+      "cottages",
+      "holiday home",
+      "villas",
+    ];
+
+    const propertyTypesArray = await Promise.all(
+      categories.map(async (category) => {
+        const result = await Apartment.aggregate([
+          { $match: { category } }, 
+          { $sample: { size: 1 } }, 
+        ]);
+
+        return result.length > 0 ? result[0] : null;
+      })
+    );
+
+    const filteredArray = propertyTypesArray.filter(Boolean);
+
+    res.status(200).json({ propertyTypes: filteredArray });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 module.exports = {
   createApartment,
   getFiltredApartmentsList,
   getApartmentById,
   checkApartmentAvaibility,
+  likeApartment,
+  getTypesApartmentArray,
 };
