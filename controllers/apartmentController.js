@@ -22,6 +22,7 @@ const createApartment = async (req, res, next) => {
     category,
     servicesList,
     mainImage,
+    geoCoords,
   } = req.body;
   const { _id } = req.user;
   const finalLocation = JSON.parse(location);
@@ -31,6 +32,7 @@ const createApartment = async (req, res, next) => {
   };
   const finalPrice = JSON.parse(price);
   const finalAccommodation = JSON.parse(accommodation);
+  const finalGeoCoords = JSON.parse(geoCoords);
   const finalServicesList = servicesList.split(",");
 
   const files = req.files || [];
@@ -85,6 +87,7 @@ const createApartment = async (req, res, next) => {
       servicesList: finalServicesList,
       mainImage: mainImageUrl,
       imagesLink,
+      geoCoords: finalGeoCoords,
     });
 
     const savedApartment = await newApartment.save();
@@ -202,7 +205,7 @@ const checkApartmentAvaibility = async (req, res, next) => {
 
     // 3. Перевірка наявності дат в bookingDates
     const requestedDates = [];
-    let currentDate = moment(dateFrom, "DD.MM.YYYY");
+    const currentDate = moment(dateFrom, "DD.MM.YYYY");
 
     while (currentDate.isSameOrBefore(moment(dateTo, "DD.MM.YYYY"))) {
       requestedDates.push(currentDate.format("DD.MM.YYYY"));
@@ -293,8 +296,8 @@ const getTypesApartmentArray = async (req, res, next) => {
     const propertyTypesArray = await Promise.all(
       categories.map(async (category) => {
         const result = await Apartment.aggregate([
-          { $match: { category } }, 
-          { $sample: { size: 1 } }, 
+          { $match: { category } },
+          { $sample: { size: 1 } },
         ]);
 
         return result.length > 0 ? result[0] : null;

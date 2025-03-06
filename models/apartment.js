@@ -34,6 +34,20 @@ const apartmentSchema = new Schema(
         required: false,
       },
     },
+    geoCoords: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      },
+      comments: {
+        type: String,
+        required: true,
+      },
+    },
     description: {
       type: String,
       required: [true, "Description is required"],
@@ -130,6 +144,11 @@ const addApartmentSchema = Joi.object({
     street: Joi.string().required(),
     building: Joi.string().required(),
     apartment: Joi.string().allow(""),
+  }),
+  geoCoords: Joi.object({
+    lat: Joi.number().required(),
+    lng: Joi.number().required(),
+    comments: Joi.string().required(),
   }),
   description: Joi.string().required(),
   owner: Joi.object({
