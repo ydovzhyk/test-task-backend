@@ -166,13 +166,17 @@ const addApartmentSchema = Joi.object({
 });
 
 const checkApartmentSchema = Joi.object({
+  city: Joi.string().allow('').optional(),
+  numberAdults: Joi.number().integer().min(1).optional(),
+  numberChildren: Joi.number().integer().min(0).optional(),
+  numberRooms: Joi.number().integer().min(1).optional(),
+  petsAllowed: Joi.boolean().optional(),
   dateFrom: Joi.string().required(),
   dateTo: Joi.string().required(),
-  numberRooms: Joi.number().integer().min(1).required(),
-  numberAdults: Joi.number().integer().min(1).required(),
-  numberChildren: Joi.number().integer().min(0).required(),
-  apartmentId: Joi.string().required(),
-});
+  days: Joi.number().integer().min(1).optional(),
+  propertyType: Joi.string().allow('').optional(),
+  apartmentId: Joi.string().allow('').optional(),
+})
 
 const likeApartmentSchema = Joi.object({
   propertyId: Joi.string().required(),
@@ -182,7 +186,7 @@ const schemas = {
   addApartmentSchema,
   checkApartmentSchema,
   likeApartmentSchema,
-};
+}
 
 module.exports = {
   Apartment,

@@ -159,90 +159,110 @@ const getApartmentById = async (req, res, next) => {
 const checkApartmentAvaibility = async (req, res, next) => {
   try {
     const {
+      city,
+      dateFrom,
+      dateTo,
+      numberRooms,
+      numberAdults,
+      numberChildren,
+      petsAllowed,
+      days,
+      propertyType,
+      apartmentId,
+    } = req.body
+
+    let apartment = await Apartment.findById(apartmentId)
+
+    if (!apartment) {
+      return res.status(404).json({
+        message: 'Apartment not found.',
+        status: false,
+      })
+    }
+
+    if (!apartment.accommodation || !apartment.accommodation.livingRooms) {
+      apartment.accommodation = {
+        livingRooms: '1',
+        qtyAdults: '2',
+        qtyChildrens: '1',
+      }
+    }
+
+    if (!apartment.bookingDates) {
+      apartment.bookingDates = []
+    }
+
+    apartment = await apartment.save()
+
+    // 🔹 Створюємо об'єкт для відповіді
+    const responseData = {
       dateFrom,
       dateTo,
       numberRooms,
       numberAdults,
       numberChildren,
       apartmentId,
-    } = req.body;
-
-    let apartment = null;
-
-    apartment = await Apartment.findById(apartmentId);
-
-    if (!apartment.accommodation || !apartment.accommodation.livingRooms) {
-      apartment.accommodation = {
-        livingRooms: "1",
-        qtyAdults: "2",
-        qtyChildrens: "1",
-      };
     }
 
-    if (!apartment.bookingDates) {
-      apartment.bookingDates = [];
-    }
-
-    apartment = await apartment.save();
-
-    // 2. Перевірка відповідності даних
-    const { livingRooms, qtyAdults, qtyChildrens } = apartment.accommodation;
+    // 🔹 1. Перевірка відповідності кількості кімнат, дорослих та дітей
+    const { livingRooms, qtyAdults, qtyChildrens } = apartment.accommodation
     if (
       Number(livingRooms) < Number(numberRooms) ||
       Number(qtyAdults) < Number(numberAdults) ||
       Number(qtyChildrens) < Number(numberChildren)
     ) {
       return res.status(200).json({
+        message:
+          'Unfortunately, the apartment does not meet the selected criteria.',
         status: false,
-        dateFrom,
-        dateTo,
-        numberRooms,
-        numberAdults,
-        numberChildren,
-        apartmentId,
-      });
+        ...responseData,
+      })
     }
 
-    // 3. Перевірка наявності дат в bookingDates
-    const requestedDates = [];
-    const currentDate = moment(dateFrom, "DD.MM.YYYY");
+    // 🔹 2. Перевірка можливості проживання з тваринами
+    if (petsAllowed && !apartment.servicesList.includes('Pets Allowed')) {
+      return res.status(200).json({
+        message: 'Unfortunately, this apartment does not allow pets.',
+        status: false,
+        ...responseData,
+      })
+    }
 
-    while (currentDate.isSameOrBefore(moment(dateTo, "DD.MM.YYYY"))) {
-      requestedDates.push(currentDate.format("DD.MM.YYYY"));
-      currentDate.add(1, "days");
+    // 🔹 3. Перевірка наявності дат у bookingDates
+    const requestedDates = []
+    const currentDate = moment(dateFrom, 'MM/DD/YYYY')
+
+    while (currentDate.isSameOrBefore(moment(dateTo, 'MM/DD/YYYY'))) {
+      requestedDates.push(currentDate.format('MM/DD/YYYY'))
+      currentDate.add(1, 'days')
     }
 
     const isAvailable = requestedDates.every(
       (date) => !apartment.bookingDates.includes(date)
-    );
+    )
 
     if (!isAvailable) {
       return res.status(200).json({
+        message:
+          'Unfortunately, the apartment is not available for the selected dates.',
         status: false,
-        dateFrom,
-        dateTo,
-        numberRooms,
-        numberAdults,
-        numberChildren,
-        apartmentId,
-      });
+        ...responseData,
+      })
     }
 
-    // 4. Повернення успішної відповіді
+    // 🔹 4. Успішна відповідь
     return res.status(200).json({
+      message: 'The apartment is available for the selected criteria.',
       status: true,
-      dateFrom,
-      dateTo,
-      numberRooms,
-      numberAdults,
-      numberChildren,
-      apartmentId,
-    });
+      ...responseData,
+    })
   } catch (error) {
-    console.log(error);
-    next(error);
+    // eslint-disable-next-line no-console
+    console.error('Error checking apartment availability:', error)
+    next(error)
   }
-};
+}
+
 
 const mongoose = require("mongoose");
 

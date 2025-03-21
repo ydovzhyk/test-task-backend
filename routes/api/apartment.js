@@ -25,7 +25,7 @@ router.post(
 // *Get filtred apartment
 router.get("/filter", ctrlWrapper(ctrl.getFiltredApartmentsList));
 
-// *check avaibility apartment
+// *Сheck avaibility apartment
 router.post(
   "/check",
   validateBody(schemas.checkApartmentSchema),
@@ -45,5 +45,6 @@ router.get("/type", ctrlWrapper(ctrl.getTypesApartmentArray));
 
 // *Get apartment by Id
 router.get("/:id", ctrlWrapper(ctrl.getApartmentById));
+
 
 module.exports = router;

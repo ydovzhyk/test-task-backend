@@ -64,6 +64,11 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    chats: {
+      type: [Schema.Types.ObjectId],
+      ref: "Chat",
+      default: [],
+    },
     apartmentList: {
       type: [Schema.Types.ObjectId],
       ref: "Apartment",
