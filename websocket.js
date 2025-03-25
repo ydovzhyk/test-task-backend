@@ -159,8 +159,8 @@ const initializeWebSocket = (io) => {
         const messages = await MessageWS.find({ chatId }).sort({ createdAt: 1 })
         // Додаємо користувача в кімнату WebSocket
         socket.join(chatId)
-        // Повертаємо історію чату
-        callback(null, { messages })
+        // Повертаємо історію чату та сам чат
+        callback(null, { messages, chat })
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching chat messages:', error)
@@ -226,6 +226,22 @@ const initializeWebSocket = (io) => {
       }
     })
 
+    // 🔹 Видаляємо нові повідомлення для користувача
+    socket.on('clear-new-messages', async ({ chatId, field }, callback) => {
+      if (!chatId || !field) return
+      try {
+        await Chat.findByIdAndUpdate(chatId, {
+          [field]: [],
+        })
+        callback(null, { message: 'Success'})
+        // eslint-disable-next-line no-console
+        console.log(`🧹 Cleared ${field} for chat ${chatId}`)
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error clearing new messages:', error)
+      }
+    })
+
     // 🔹 Обробка відключення
     socket.on('disconnect', () => {
       const userId = users.get(socket.id)
@@ -247,7 +263,7 @@ const initializeWebSocket = (io) => {
           watchers.delete(watchedId)
         }
       }
-    });
+    })
   })
 
   return io
