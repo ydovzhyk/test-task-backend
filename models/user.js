@@ -88,21 +88,9 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
-    messages: {
-      type: [
-        {
-          allMessages: {
-            type: [Schema.Types.ObjectId],
-            ref: "Message",
-            default: [],
-          },
-          newMessages: {
-            type: [Schema.Types.ObjectId],
-            ref: "Message",
-            default: [],
-          },
-        },
-      ],
+    newMessages: {
+      type: [Schema.Types.ObjectId],
+      ref: "Message",
       default: [],
     },
     textDataList: {
