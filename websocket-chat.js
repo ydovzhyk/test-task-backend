@@ -140,8 +140,10 @@ const setupChatHandlers = (socket, io) => {
 
       // 🔔 Сповіщаємо користувача, що йому надійшло нове повідомлення, треба оновити користувача
       const recipientId = chat.users[1 - senderIndex]
+      console.log('визначаємо кому саме відправляти', recipientId)
       for (const [socketId, id] of users.entries()) {
         if (id === recipientId) {
+          console.log('знайшли кому відправляти підписку', recipientId)
           io.to(socketId).emit('user-new-message')
         }
       }
@@ -198,6 +200,7 @@ const setupChatHandlers = (socket, io) => {
         // 🔔 Повідомляємо клієнт що повідомлення видалено, необхідно оновити користувача
         for (const [socketId, id] of users.entries()) {
           if (id === userId) {
+            console.log('визначеному користувачу відправляємо на підписку')
             io.to(socketId).emit('user-new-message')
           }
         }
