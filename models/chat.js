@@ -2,9 +2,11 @@ const { Schema, model } = require('mongoose')
 
 const chatSchema = new Schema(
   {
-    users: { type: [String], required: true }, // Масив з ID двох користувачів
-    propertyId: { type: String, required: true }, // ID помешкання
-    lastMessage: { type: String, default: '' }, // Останнє повідомлення
+    users: { type: [String], required: true },
+    propertyId: { type: String, required: true },
+    propertyPhoto: { type: String, default: '' },
+    propertyTitle: { type: String, default: '' },
+    lastMessage: { type: String, default: '' },
     newMessagesUserOne: { type: [String], default: [] },
     newMessagesUserTwo: { type: [String], default: [] },
     lastMessageAt: { type: Date, default: Date.now },
