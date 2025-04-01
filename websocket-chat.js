@@ -1,6 +1,7 @@
 const { Chat } = require('./models/chat');
 const { MessageWS } = require('./models/messageWS');
 const { User } = require('./models/user');
+const { Apartment } = require('./models/apartment');
 
 let users
 const setUsersMap = (map) => {
@@ -42,16 +43,25 @@ const setupChatHandlers = (socket, io) => {
         })
 
         if (!chat) {
+          const apartment = await Apartment.findById(apartmentId)
+          
+
+          if (!apartment) {
+            return callback(new Error('Apartment not found'), null)
+          }
+
           chat = new Chat({
             users: [userId, ownerId],
             propertyId: apartmentId,
+            propertyPhoto: apartment.mainImage || '',
+            propertyTitle: apartment.title || '',
           })
+
           await chat.save()
         }
-
         // eslint-disable-next-line no-console
         console.log(`🆕 Chat created (or found): ${chat._id}`)
-        // ✅ Відправляємо chatId у callback з `null` як перший параметр (без помилки)
+
         callback(null, { chatId: chat._id.toString() })
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -59,7 +69,7 @@ const setupChatHandlers = (socket, io) => {
         callback(error, null)
       }
     }
-  )
+  );
 
   // 🔹 Перевіряємо чи є чат
   socket.on(
