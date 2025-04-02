@@ -3,6 +3,7 @@ const { Apartment } = require("../models/apartment");
 const { User } = require("../models/user");
 const { bucket } = require("../firebaseConfig");
 const moment = require("moment");
+const { allReviews } = require('../feedback')
 
 const {
   RequestError,
@@ -71,7 +72,8 @@ const createApartment = async (req, res, next) => {
     files.forEach((file) => {
       fs.unlink(file.path, (err) => {
         if (err) {
-          console.error(`Помилка при видаленні файлу ${file.path}:`, err);
+          // eslint-disable-next-line no-console
+          console.error(`Помилка при видаленні файлу ${file.path}:`, err)
         }
       });
     });
@@ -88,6 +90,7 @@ const createApartment = async (req, res, next) => {
       mainImage: mainImageUrl,
       imagesLink,
       geoCoords: finalGeoCoords,
+      
     });
 
     const savedApartment = await newApartment.save();
@@ -142,15 +145,41 @@ const getFiltredApartmentsList = async (req, res, next) => {
 };
 
 const getApartmentById = async (req, res, next) => {
+  // const getRandomInt = (min, max) => {
+  //   return Math.floor(Math.random() * (max - min + 1)) + min
+  // }
+
+  // const shuffleArray = (array) => {
+  //   return [...array].sort(() => 0.5 - Math.random())
+  // }
   try {
-    const { id } = req.params;
-    const apartment = await Apartment.findById(id);
+    const { id } = req.params
+    const apartment = await Apartment.findById(id)
 
     if (!apartment) {
-      return res.status(404).json({ message: "Apartment not found" });
+      return res.status(404).json({ message: 'Apartment not found' })
     }
+    // Generate random number of feedbacks between 11 and 25
+    // const apartments = await Apartment.find()
 
-    res.status(200).json(apartment);
+    // for (const apartment of apartments) {
+    //   const numberOfFeedbacks = getRandomInt(11, 25)
+    //   const shuffled = shuffleArray(allReviews)
+    //   const selectedFeedbacks = shuffled.slice(0, numberOfFeedbacks)
+
+    //   const averageRanking =
+    //     selectedFeedbacks.reduce(
+    //       (acc, item) => acc + parseFloat(item.ranking),
+    //       0
+    //     ) / selectedFeedbacks.length
+
+    //   apartment.usersFeedback = selectedFeedbacks
+    //   apartment.ranking = Number(averageRanking.toFixed(1))
+
+    //   await apartment.save()
+    // }
+
+    res.status(200).json(apartment)
   } catch (error) {
     next(error);
   }

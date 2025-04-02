@@ -14,7 +14,7 @@ const apartmentSchema = new Schema(
     },
     title: {
       type: String,
-      required: [true, "Title is required"],
+      required: [true, 'Title is required'],
     },
     location: {
       city: {
@@ -50,21 +50,21 @@ const apartmentSchema = new Schema(
     },
     description: {
       type: String,
-      required: [true, "Description is required"],
+      required: [true, 'Description is required'],
     },
     owner: {
       email: {
         type: String,
-        required: [true, "Email is required"],
+        required: [true, 'Email is required'],
         match: emailRegexp,
       },
       name: {
         type: String,
-        required: [true, "Name is required"],
+        required: [true, 'Name is required'],
       },
       phone: {
         type: String,
-        required: [true, "Phone is required"],
+        required: [true, 'Phone is required'],
         match: phoneRegexp,
       },
       id: {
@@ -89,11 +89,11 @@ const apartmentSchema = new Schema(
     price: {
       value: {
         type: String,
-        required: [true, "Value is required"],
+        required: [true, 'Value is required'],
       },
       currency: {
         type: String,
-        required: [true, "Currency is required"],
+        required: [true, 'Currency is required'],
       },
     },
     category: {
@@ -124,14 +124,41 @@ const apartmentSchema = new Schema(
       required: false,
     },
     usersFeedback: {
-      type: [Schema.Types.ObjectId],
+      type: [
+        {
+          reviewOwnerName: {
+            type: String,
+            required: true,
+          },
+          reviewOwnerCountry: {
+            type: String,
+            required: true,
+          },
+          reviewData: {
+            type: String,
+            required: true,
+          },
+          reviewDate: {
+            type: String,
+            required: true,
+          },
+          reviewOwnerPhoto: {
+            type: String,
+            required: true,
+          },
+          ranking: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
       default: [],
       required: false,
     },
   },
 
   { minimize: false }
-);
+)
 
 apartmentSchema.post("save", handleSaveErrors);
 
