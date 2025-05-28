@@ -1,7 +1,8 @@
-const { Chat } = require('./models/chat');
-const { MessageWS } = require('./models/messageWS');
-const { User } = require('./models/user');
-const { Apartment } = require('./models/apartment');
+const { Chat } = require('./models/chat')
+const { MessageWS } = require('./models/messageWS')
+const { User } = require('./models/user')
+const { Apartment } = require('./models/apartment')
+// const mongoose = require("mongoose");
 
 let users
 const setUsersMap = (map) => {
@@ -12,7 +13,7 @@ const setUsersMap = (map) => {
 const updateUserNewMessages = async (userId) => {
   try {
     const allChats = await Chat.find({ users: userId })
-    const newMessageIds = [];
+    const newMessageIds = []
     allChats.forEach((chat) => {
       const userIndex = chat.users.indexOf(userId)
       if (userIndex === 0) {
@@ -24,12 +25,11 @@ const updateUserNewMessages = async (userId) => {
 
     await User.findByIdAndUpdate(userId, {
       newMessages: newMessageIds,
-    });
-
+    })
   } catch (err) {
-    throw new Error(err);
+    throw new Error(err)
   }
-};
+}
 
 const setupChatHandlers = (socket, io) => {
   // ------🔹 ЛОГІКА ЧАТУ  ------
@@ -44,7 +44,6 @@ const setupChatHandlers = (socket, io) => {
 
         if (!chat) {
           const apartment = await Apartment.findById(apartmentId)
-          
 
           if (!apartment) {
             return callback(new Error('Apartment not found'), null)
@@ -69,7 +68,7 @@ const setupChatHandlers = (socket, io) => {
         callback(error, null)
       }
     }
-  );
+  )
 
   // 🔹 Перевіряємо чи є чат
   socket.on(
@@ -163,7 +162,7 @@ const setupChatHandlers = (socket, io) => {
       console.error('❌ Error sending message:', error)
       callback(error, null)
     }
-  })
+  });
 
   // 🔹 Отримуємо аватар власника помешкання
   socket.on('owner-avatar', async ({ ownerId }, callback) => {
@@ -220,7 +219,7 @@ const setupChatHandlers = (socket, io) => {
         console.error('Error clearing new messages:', error)
       }
     }
-  );
+  )
 }
 
-module.exports = { setupChatHandlers, setUsersMap };
+module.exports = { setupChatHandlers, setUsersMap }
