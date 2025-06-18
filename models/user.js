@@ -15,12 +15,9 @@ const userSchema = new Schema(
     surname: {
       type: String,
       default: "",
-      minlength: 2,
-      maxlength: 50,
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
       unique: true,
       match: emailRegexp,
     },
@@ -35,6 +32,10 @@ const userSchema = new Schema(
       minlength: 6,
     },
     userAvatar: {
+      type: String,
+      default: "",
+    },
+    accessCode: {
       type: String,
       default: "",
     },
@@ -110,7 +111,18 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).required(),
   username: Joi.string().required(),
   userAvatar: Joi.string().required(),
-});
+})
+
+const registerIncognitoSchema = Joi.object({
+  accessCode: Joi.string().required(),
+  password: Joi.string().required(),
+  username: Joi.string().required(),
+  userAvatar: Joi.string().required(),
+})
+
+const checkAccessCodeSchema = Joi.object({
+  accessCode: Joi.string().required(),
+})
 
 const loginSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
@@ -151,7 +163,9 @@ const schemas = {
   refreshTokenSchema,
   editUserSchema,
   verifyEmailSchema,
-};
+  checkAccessCodeSchema,
+  registerIncognitoSchema,
+}
 
 module.exports = {
   User,

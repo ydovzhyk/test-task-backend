@@ -18,6 +18,20 @@ router.post(
   ctrlWrapper(ctrl.register)
 );
 
+// check access code
+router.post(
+  '/check-access-code',
+  validateBody(schemas.checkAccessCodeSchema),
+  ctrlWrapper(ctrl.checkAccessCode)
+)
+
+// signup incognito
+router.post(
+  '/register-incognito',
+  validateBody(schemas.registerIncognitoSchema),
+  ctrlWrapper(ctrl.registerIncognito)
+)
+
 // login
 router.post(
   "/login",

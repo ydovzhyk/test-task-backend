@@ -50,6 +50,63 @@ const register = async (req, res, next) => {
   }
 };
 
+const registerIncognito = async (req, res, next) => {
+  try {
+    const { username, accessCode, password, userAvatar } = req.body
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    const newUser = await User.create({
+      username,
+      accessCode,
+      passwordHash,
+      userAvatar,
+      email: '',
+    })
+
+    const paylaod = { id: newUser._id }
+    const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: '12h' })
+    const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
+      expiresIn: '24h',
+    })
+
+    const newSession = await Session.create({
+      uid: newUser._id,
+    })
+
+    res.status(201).send({
+      username: newUser.username,
+      accessCode: newUser.accessCode,
+      email: newUser.email,
+      userAvatar: newUser.userAvatar,
+      id: newUser._id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      sid: newSession._id,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const checkAccessCode = async (req, res, next) => {
+  try {
+    const { accessCode } = req.body
+    const existingUser = await User.findOne({ accessCode })
+    if (existingUser) {
+      return res.status(409).json({
+        uniqueAccessCode: false,
+        message: 'This access code already exists.',
+      })
+    }
+
+    return res.status(200).json({
+      uniqueAccessCode: true,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -309,6 +366,7 @@ const verifyController = async (req, res, next) => {
 
 module.exports = {
   register,
+  registerIncognito,
   login,
   logout,
   deleteUserController,
@@ -318,4 +376,5 @@ module.exports = {
   googleAuthController,
   verificationController,
   verifyController,
-};
+  checkAccessCode,
+}
