@@ -12,7 +12,7 @@ const { RequestError, sendMail } = require("../helpers");
 
 const register = async (req, res, next) => {
   try {
-    const { username, email, password, userAvatar } = req.body;
+    const { username, email, password, userAvatar, sex } = req.body;
     const user = await User.findOne({ email });
     if (user) {
       throw RequestError(409, "Email in use");
@@ -24,6 +24,7 @@ const register = async (req, res, next) => {
       email,
       passwordHash,
       userAvatar,
+      sex
     });
 
     const paylaod = { id: newUser._id };
@@ -60,7 +61,7 @@ const registerIncognito = async (req, res, next) => {
       accessCode,
       passwordHash,
       userAvatar,
-      email: '',
+      email: `${accessCode}@gmail.com`,
     })
 
     const paylaod = { id: newUser._id }
