@@ -90,7 +90,7 @@ const createApartment = async (req, res, next) => {
       mainImage: mainImageUrl,
       imagesLink,
       geoCoords: finalGeoCoords,
-      
+
     });
 
     const savedApartment = await newApartment.save();
@@ -291,7 +291,6 @@ const checkApartmentAvaibility = async (req, res, next) => {
     next(error)
   }
 }
-
 
 const mongoose = require("mongoose");
 

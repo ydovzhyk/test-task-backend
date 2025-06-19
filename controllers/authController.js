@@ -308,6 +308,8 @@ const googlePsychAuthController = async (req, res, next) => {
     const origin = req.session.origin
     const roleFromSession = req.session.role
 
+    console.log('ORIGIN:', origin)
+
     if (roleFromSession && req.user.role !== roleFromSession) {
       await User.findByIdAndUpdate(id, { role: roleFromSession })
     }
