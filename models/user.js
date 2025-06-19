@@ -9,13 +9,13 @@ const userSchema = new Schema(
   {
     username: {
       type: String,
-      required: [true, "User Name is required"],
+      required: [true, 'User Name is required'],
       minlength: 2,
       maxlength: 25,
     },
     surname: {
       type: String,
-      default: "",
+      default: '',
     },
     email: {
       type: String,
@@ -24,42 +24,47 @@ const userSchema = new Schema(
     },
     phone: {
       type: String,
-      default: "",
+      default: '',
       match: /^\+?[1-9]\d{1,14}$/,
     },
     passwordHash: {
       type: String,
-      required: [true, "Set password for user"],
+      required: [true, 'Set password for user'],
       minlength: 6,
     },
     userAvatar: {
       type: String,
-      default: "",
+      default: '',
     },
     accessCode: {
       type: String,
-      default: "",
+      default: '',
     },
     country: {
       type: String,
-      default: "",
+      default: '',
     },
     city: {
       type: String,
-      default: "",
+      default: '',
     },
     address: {
       type: String,
-      default: "",
+      default: '',
     },
     sex: {
       type: String,
-      enum: ["male", "female", ""],
-      default: "",
+      enum: ['male', 'female', ''],
+      default: '',
+    },
+    role: {
+      type: String,
+      enum: ['doctor', 'patient'],
+      default: 'patient',
     },
     aboutUser: {
       type: String,
-      default: "",
+      default: '',
       maxlength: 500,
     },
     verified: {
@@ -68,31 +73,31 @@ const userSchema = new Schema(
     },
     chats: {
       type: [Schema.Types.ObjectId],
-      ref: "Chat",
+      ref: 'Chat',
       default: [],
     },
     apartmentList: {
       type: [Schema.Types.ObjectId],
-      ref: "Apartment",
+      ref: 'Apartment',
       default: [],
     },
     likedApartments: {
       type: [Schema.Types.ObjectId],
-      ref: "Apartment",
+      ref: 'Apartment',
       default: [],
     },
     ordersForRent: {
       type: [Schema.Types.ObjectId],
-      ref: "Order",
+      ref: 'Order',
       default: [],
     },
     verificationToken: {
       type: String,
-      default: "",
+      default: '',
     },
     newMessages: {
       type: [Schema.Types.ObjectId],
-      ref: "Message",
+      ref: 'Message',
       default: [],
     },
     textDataList: {
@@ -101,7 +106,7 @@ const userSchema = new Schema(
     },
   },
   { minimize: false, timestamps: true }
-);
+)
 
 userSchema.post("save", handleSaveErrors);
 
@@ -130,6 +135,11 @@ const loginSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
+
+const loginIncognitoSchema = Joi.object({
+  accessCode: Joi.string().required(),
+  password: Joi.string().min(6).required(),
+})
 
 const refreshTokenSchema = Joi.object({
   sid: Joi.string().required(),
@@ -167,6 +177,7 @@ const schemas = {
   verifyEmailSchema,
   checkAccessCodeSchema,
   registerIncognitoSchema,
+  loginIncognitoSchema,
 }
 
 module.exports = {

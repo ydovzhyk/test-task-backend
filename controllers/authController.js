@@ -141,6 +141,40 @@ const login = async (req, res, next) => {
   }
 };
 
+const loginIncognito = async (req, res, next) => {
+  try {
+    const { accessCode, password } = req.body
+
+    const user = await User.findOne({ accessCode })
+    if (!user) {
+      throw RequestError(400, 'Invalid Access Code')
+    }
+    const passwordCompare = await bcrypt.compare(password, user.passwordHash)
+    if (!passwordCompare) {
+      throw RequestError(400, 'Invalid Access Code')
+    }
+    const paylaod = { id: user._id }
+
+    const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: '12h' })
+    const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
+      expiresIn: '24h',
+    })
+
+    const newSession = await Session.create({
+      uid: user._id,
+    })
+
+    return res.status(200).send({
+      accessToken,
+      refreshToken,
+      sid: newSession._id,
+      user,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const refresh = async (req, res, next) => {
   try {
     const user = req.user;
@@ -266,6 +300,34 @@ const googleAuthController = async (req, res, next) => {
   }
 };
 
+const googlePsychAuthController = async (req, res, next) => {
+  try {
+    const { _id: id } = req.user
+    const payload = { id }
+
+    const origin = req.session.origin
+    const roleFromSession = req.session.role
+
+    if (roleFromSession && req.user.role !== roleFromSession) {
+      await User.findByIdAndUpdate(id, { role: roleFromSession })
+    }
+
+    const accessToken = jwt.sign(payload, SECRET_KEY, { expiresIn: '12h' })
+    const refreshToken = jwt.sign(payload, REFRESH_SECRET_KEY, {
+      expiresIn: '24h',
+    })
+    const newSession = await Session.create({
+      uid: id,
+    })
+
+    res.redirect(
+      `${origin}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    )
+  } catch (error) {
+    next(error)
+  }
+}
+
 const verificationController = async (req, res, next) => {
   try {
     const { _id: userId } = req.user;
@@ -369,12 +431,14 @@ module.exports = {
   register,
   registerIncognito,
   login,
+  loginIncognito,
   logout,
   deleteUserController,
   refresh,
   getUserController,
   editUserController,
   googleAuthController,
+  googlePsychAuthController,
   verificationController,
   verifyController,
   checkAccessCode,

@@ -39,6 +39,12 @@ router.post(
   ctrlWrapper(ctrl.login)
 );
 
+router.post(
+  '/login-incognito',
+  validateBody(schemas.loginIncognitoSchema),
+  ctrlWrapper(ctrl.loginIncognito)
+)
+
 // logout
 router.post("/logout", authorize, ctrlWrapper(ctrl.logout));
 
