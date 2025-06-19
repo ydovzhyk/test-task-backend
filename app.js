@@ -11,7 +11,6 @@ const apartmentsRouter = require("./routes/api/apartment");
 const ordersRouter = require("./routes/api/orders");
 const smsRouter = require("./routes/api/sms");
 const googleRouter = require("./routes/api/google");
-const googlePsychRouter = require("./routes/api/google-psych");
 const textDataRouter = require("./routes/api/textData");
 const chatRouter = require("./routes/api/chat");
 
@@ -58,16 +57,6 @@ app.use(
   })
 );
 app.use("/google", googleRouter);
-
-app.use(
-  '/google-psych',
-  session({
-    secret: `${GOOGLE_CLIENT_SECRET}`,
-    resave: false,
-    saveUninitialized: true,
-  })
-)
-app.use('/google-psych', googlePsychRouter)
 
 const staticPath = path.resolve("public/");
 app.use(express.static(staticPath));

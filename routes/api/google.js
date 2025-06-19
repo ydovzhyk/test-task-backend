@@ -7,12 +7,16 @@ const { passport } = require("../../middlewares");
 const router = express.Router();
 
 const rememberOrigin = (req, res, next) => {
-  const origin = req.query.origin;
+  const { origin, role } = req.query
+
   if (origin) {
-    req.session.origin = origin;
+    req.session.origin = origin
   }
-  next();
-};
+  if (role) {
+    req.session.role = role
+  }
+  next()
+}
 
 router.get(
   "/",

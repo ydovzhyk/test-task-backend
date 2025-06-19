@@ -283,6 +283,11 @@ const googleAuthController = async (req, res, next) => {
     const payload = { id };
 
     const origin = req.session.origin;
+    const roleFromSession = req.session.role;
+
+    if (roleFromSession && req.user.role !== roleFromSession) {
+      await User.findByIdAndUpdate(id, { role: roleFromSession })
+    }
 
     const accessToken = jwt.sign(payload, SECRET_KEY, { expiresIn: "12h" });
     const refreshToken = jwt.sign(payload, REFRESH_SECRET_KEY, {
@@ -299,37 +304,6 @@ const googleAuthController = async (req, res, next) => {
     next(error);
   }
 };
-
-const googlePsychAuthController = async (req, res, next) => {
-  try {
-    const { _id: id } = req.user
-    const payload = { id }
-
-    const origin = req.session.origin
-    const roleFromSession = req.session.role
-
-    console.log('ORIGIN:', origin)
-    console.log('ROLE FROM SESSION:', roleFromSession)
-
-    if (roleFromSession && req.user.role !== roleFromSession) {
-      await User.findByIdAndUpdate(id, { role: roleFromSession })
-    }
-
-    const accessToken = jwt.sign(payload, SECRET_KEY, { expiresIn: '12h' })
-    const refreshToken = jwt.sign(payload, REFRESH_SECRET_KEY, {
-      expiresIn: '24h',
-    })
-    const newSession = await Session.create({
-      uid: id,
-    })
-
-    res.redirect(
-      `${origin}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
-    )
-  } catch (error) {
-    next(error)
-  }
-}
 
 const verificationController = async (req, res, next) => {
   try {
@@ -441,7 +415,6 @@ module.exports = {
   getUserController,
   editUserController,
   googleAuthController,
-  googlePsychAuthController,
   verificationController,
   verifyController,
   checkAccessCode,
