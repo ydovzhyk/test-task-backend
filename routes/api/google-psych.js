@@ -10,6 +10,7 @@ const rememberOrigin = (req, res, next) => {
   const { origin, role } = req.query
 
   if (origin) {
+    console.log("rememberOrigin", origin)
     req.session.origin = origin
   }
   if (role) {
