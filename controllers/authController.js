@@ -7,12 +7,18 @@ const { User } = require("../models/user");
 const { Session } = require("../models/session");
 const { SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
 const { v4: uuidv4 } = require("uuid");
-
 const { RequestError, sendMail } = require("../helpers");
 
 const register = async (req, res, next) => {
   try {
-    const { username, email, password, userAvatar, sex } = req.body;
+    const {
+      username,
+      email,
+      password,
+      userAvatar,
+      sex = '',
+      role = '',
+    } = req.body
     const user = await User.findOne({ email });
     if (user) {
       throw RequestError(409, "Email in use");
@@ -24,8 +30,9 @@ const register = async (req, res, next) => {
       email,
       passwordHash,
       userAvatar,
-      sex
-    });
+      sex,
+      role,
+    })
 
     const paylaod = { id: newUser._id };
     const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "12h" });
@@ -45,7 +52,8 @@ const register = async (req, res, next) => {
       accessToken: accessToken,
       refreshToken: refreshToken,
       sid: newSession._id,
-    });
+      role: newUser.role,
+    })
   } catch (error) {
     next(error);
   }
@@ -53,7 +61,7 @@ const register = async (req, res, next) => {
 
 const registerIncognito = async (req, res, next) => {
   try {
-    const { username, accessCode, password, userAvatar } = req.body
+    const { username, accessCode, password, userAvatar, role } = req.body
 
     const passwordHash = await bcrypt.hash(password, 10)
     const newUser = await User.create({
@@ -62,6 +70,7 @@ const registerIncognito = async (req, res, next) => {
       passwordHash,
       userAvatar,
       email: `${accessCode}@gmail.com`,
+      role
     })
 
     const paylaod = { id: newUser._id }
@@ -83,6 +92,7 @@ const registerIncognito = async (req, res, next) => {
       accessToken: accessToken,
       refreshToken: refreshToken,
       sid: newSession._id,
+      role: newUser.role,
     })
   } catch (error) {
     next(error)

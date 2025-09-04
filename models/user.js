@@ -117,7 +117,8 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).required(),
   username: Joi.string().required(),
   userAvatar: Joi.string().required(),
-  sex: Joi.string().optional()
+  sex: Joi.string().optional(),
+  role: Joi.string().optional(),
 })
 
 const registerIncognitoSchema = Joi.object({
@@ -125,6 +126,7 @@ const registerIncognitoSchema = Joi.object({
   password: Joi.string().required(),
   username: Joi.string().required(),
   userAvatar: Joi.string().required(),
+  role: Joi.string().required(),
 })
 
 const checkAccessCodeSchema = Joi.object({

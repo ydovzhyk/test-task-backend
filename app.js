@@ -13,6 +13,7 @@ const smsRouter = require("./routes/api/sms");
 const googleRouter = require("./routes/api/google");
 const textDataRouter = require("./routes/api/textData");
 const chatRouter = require("./routes/api/chat");
+const recordsRouter = require("./routes/api/records");
 
 const { GOOGLE_CLIENT_SECRET } = process.env;
 
@@ -47,6 +48,7 @@ app.use("/orders", ordersRouter);
 app.use("/sms", smsRouter);
 app.use("/textData", textDataRouter);
 app.use('/chat', chatRouter);
+app.use('/records', recordsRouter);
 
 app.use(
   "/google",
