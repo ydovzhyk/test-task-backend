@@ -67,6 +67,13 @@ router.post(
   ctrlWrapper(ctrl.editUserController)
 );
 
+// delete user
+router.delete(
+  '/delete/:userId',
+  authorize,
+  ctrlWrapper(ctrl.deleteUserController)
+)
+
 // verify email
 router.post(
   "/verify",

@@ -221,7 +221,7 @@ const deleteUserController = async (req, res, next) => {
     const currentSession = req.session;
     await Session.deleteOne({ _id: currentSession._id });
 
-    res.status(200).json({ message: "user deleted" });
+    res.status(200).json({ message: "user deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -281,7 +281,7 @@ const editUserController = async (req, res, next) => {
       runValidators: true,
     });
 
-    return res.status(201).send({ user });
+    return res.status(201).send({ user: user, message: "Profile updated successfully" });
   } catch (error) {
     next(error);
   }
